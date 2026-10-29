@@ -1,22 +1,36 @@
-# Khushal's Systems Playground
+# Khushal / Enterprise Architecture & Systems
 
-A responsive engineering portfolio with an animated architecture diagram and interactive presence simulation. All interactions run in the browser; no API keys or build tools are required.
+Astro portfolio, Markdown blog, and browser-based presence simulation. Hosted at https://khushal075.github.io/.
 
-## Publish with GitHub Pages
+## Write a post
 
-1. Create a public repository named `khushal075.github.io` under `khushal075` (or reuse it if it already exists).
-2. Upload `index.html` and `.nojekyll` to the repository root on the `main` branch.
-3. In **Settings → Pages**, choose **Deploy from a branch**, then **main** and **/ (root)**, and save.
-4. GitHub will show the deployed URL after publication: https://khushal075.github.io/
+Create `src/content/blog/your-post.md`:
 
-A user-site repository with that name should be checked for existing content before uploading anything. Keep the separate `khushal075` profile repository for the profile README.
+```markdown
+---
+title: "Your article title"
+description: "A concise summary."
+date: 2026-10-29
+tags: ["Enterprise architecture"]
+draft: true
+---
 
-## Local preview
+Write your article here.
+```
 
-Open `index.html` in a browser. There are no dependencies, backend services, or remote scripts.
+Set `draft: false` when ready to publish. Drafts are excluded from article pages, the archive, and RSS, but their source remains visible in this public repository. Commit and push to `main`; GitHub Actions builds and deploys the site. Article URLs use the file name: `/blog/your-post/`.
 
-## Demo behavior
+## Develop
 
-The client slider changes the simulated session count. Disconnecting Node A marks it offline immediately, then expires its sessions after three seconds. Reconnect restores its sessions. Reset restores the initial 120-client state.
+Node.js 24 or later:
 
-The graph is simulated session history, not live production telemetry. AI chat is not implemented.
+```bash
+npm ci
+npm run dev
+npm run build
+npm run preview
+```
+
+Site copy is in `src/components/home.html`; shared styles are in `src/styles/global.css`. The simulation is in `public/playground.js`. Blog routes and the RSS feed are in `src/pages/`. The deployment workflow is `.github/workflows/deploy.yml`.
+
+The playground uses simulated data. There is no AI backend or live production telemetry.

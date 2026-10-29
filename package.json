@@ -1,0 +1,27 @@
+{
+  "name": "khushal-architecture",
+  "version": "1.0.0",
+  "description": "Enterprise architecture portfolio and Markdown blog",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khushal075/khushal075.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/khushal075/khushal075.github.io/issues"
+  },
+  "homepage": "https://github.com/khushal075/khushal075.github.io#readme",
+  "private": true,
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "astro": "^7.4.4"
+  }
+}

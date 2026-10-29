@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import home from '../components/home.html?raw';
+---
+<Layout title="Khushal / Enterprise Architecture & Applied AI" description="Enterprise architecture, applied AI, technical decisions, and hands-on systems engineering. Explore projects, architecture notes, and interactive demonstrations.">
+<Fragment set:html={home} />
+<script is:inline src="/playground.js"></script>
+</Layout>
