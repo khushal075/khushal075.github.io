@@ -8,7 +8,7 @@ draft: false
 
 A connection disappearing is an event. Declaring a user offline is a decision about what the system believes and what it tells other people.
 
-The [presence playground](/#playground) makes one part of that decision visible. It starts with two application nodes and a simulated set of connected sessions. Disconnect Node A and its sessions remain counted briefly. After a three-second timeout, those sessions become offline.
+The [presence playground](/playground/) makes one part of that decision visible. It starts with two application nodes and a simulated set of connected sessions. Disconnect Node A and its sessions remain counted briefly. After a three-second timeout, those sessions become offline.
 
 > This is a browser simulation with illustrative numbers. It does not run a Redis server, establish real WebSocket sessions, or measure production performance.
 
@@ -64,4 +64,4 @@ The purpose of this playground is to connect an architecture choice to observabl
 
 That is also a useful standard for a technical decision record: state the constraint, describe the chosen behavior, identify what remains uncertain, and show how the decision can be tested.
 
-[Try the simulation](/#playground), or [explore the presence-service repository](https://github.com/khushal075/presence_service) for the separate implementation.
+[Try the simulation](/playground/), or [explore the presence-service repository](https://github.com/khushal075/presence_service) for the separate implementation.
