@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>When a connection disappears, when is a user offline? / Khushal</title><meta name="description" content="A walkthrough of the presence playground: heartbeat timeouts, stale state, and the boundary between a useful simulation and a production design."><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#12695e"><link rel="canonical" href="https://khushal075.github.io/blog/presence-is-a-decision/"><link rel="alternate" type="application/rss+xml" title="Khushal / Architecture Notes" href="/rss.xml"><meta property="og:title" content="When a connection disappears, when is a user offline? / Khushal"><meta property="og:description" content="A walkthrough of the presence playground: heartbeat timeouts, stale state, and the boundary between a useful simulation and a production design."><meta property="og:type" content="website"><meta property="og:url" content="https://khushal075.github.io/blog/presence-is-a-decision/"><link rel="stylesheet" href="/_astro/Layout.Chff5W8M.css"></head><body><nav><a class="brand" href="/" aria-label="Khushal home">k<span>.</span></a><div class="navlinks"><a href="/about/">About</a><a href="/blog/" aria-current="page">Blog</a><a href="/decisions/">Decisions</a><a href="/playground/">Playground</a><a href="/ai/">AI</a><a href="https://github.com/khushal075" target="_blank" rel="noopener">GitHub</a></div></nav><main><header class="bloghero articlehero"><a class="eyebrow mono" href="/blog/">← Architecture notes</a><h1>When a connection disappears, when is a user offline?</h1><p>A walkthrough of the presence playground: heartbeat timeouts, stale state, and the boundary between a useful simulation and a production design.</p><div class="postmeta mono">Khushal · <time datetime="2026-10-29T00:00:00.000Z">29 October 2026</time> · 3 min read<br>Distributed systems / Architecture decisions</div></header><article class="prose"><p>A connection disappearing is an event. Declaring a user offline is a decision about what the system believes and what it tells other people.</p>
+<p>The <a href="/playground/">presence playground</a> makes one part of that decision visible. It starts with two application nodes and a simulated set of connected sessions. Disconnect Node A and its sessions remain counted briefly. After a three-second timeout, those sessions become offline.</p>
+<blockquote>
+<p>This is a browser simulation with illustrative numbers. It does not run a Redis server, establish real WebSocket sessions, or measure production performance.</p>
+</blockquote>
+<h2 id="start-with-the-meaning-not-the-mechanism">Start with the meaning, not the mechanism</h2>
+<p>“Online” might mean that a user has an open connection, recently sent a heartbeat, or is actively interacting with an application. Those meanings lead to different product behavior.</p>
+<p>A useful architecture discussion starts by deciding which meaning the product needs. For a collaboration tool, a briefly stale indicator may be acceptable. A workflow that assigns urgent work may need a different signal and a more explicit treatment of uncertainty.</p>
+<p>The decision record should explain the meaning of presence, the acceptable delay before an offline transition, and what happens when evidence is missing.</p>
+<h2 id="what-the-playground-actually-does">What the playground actually does</h2>
+<p>The model has three states:</p>
+<pre class="astro-code github-light" style="background-color:#fff;color:#24292e; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Healthy: both nodes have connected sessions</span></span>
+<span class="line"><span>    ↓ Disconnect Node A</span></span>
+<span class="line"><span>Timeout pending: Node A is offline, but its sessions remain counted</span></span>
+<span class="line"><span>    ↓ Three seconds elapse</span></span>
+<span class="line"><span>Degraded: Node A's sessions expire; Node B remains connected</span></span></code></pre>
+<p>Moving the client slider changes the illustrative session population. Reconnecting Node A restores its sessions. Reset returns the model to 120 clients and a healthy state.</p>
+<p>The chart shows recent simulated connected-session counts. It is useful for seeing the transition; it is not a latency benchmark or a capacity-planning result.</p>
+<h2 id="the-timeout-is-a-tradeoff">The timeout is a tradeoff</h2>
+<p>A shorter timeout detects missing heartbeats sooner. It can also classify temporary network interruptions as offline transitions more quickly. A longer timeout tolerates more interruption but leaves stale presence visible for longer.</p>
+<p>Three seconds is a demonstration parameter here, not a recommendation for a production service. A production choice needs evidence about heartbeat frequency, network behavior, scheduling delays, and the experience users expect.</p>
+<p>It also needs a distinction between a session and a person. A user may have several devices or browser tabs. Losing one session does not necessarily mean that the user is offline.</p>
+<h2 id="a-diagram-is-not-a-delivery-guarantee">A diagram is not a delivery guarantee</h2>
+<p>The visual topology includes Redis Pub/Sub and TTL to explain coordination and expiry. Animated lines show relationships, not proof that an update was durably delivered.</p>
+<p>A production design still needs explicit answers:</p>
+<ul>
+<li>How does a reconnecting client obtain the current state?</li>
+<li>What happens to updates missed during a disconnection?</li>
+<li>How are simultaneous sessions for the same user combined?</li>
+<li>Which component owns expiry and publishes the resulting transition?</li>
+<li>How are tenant boundaries enforced during subscriptions and fan-out?</li>
+</ul>
+<p>These are contracts to define and verify, rather than details to infer from a box labeled “Redis.”</p>
+<h2 id="make-the-decision-inspectable">Make the decision inspectable</h2>
+<p>The purpose of this playground is to connect an architecture choice to observable behavior. A visitor can trigger a failure and see the timeout policy take effect.</p>
+<p>That is also a useful standard for a technical decision record: state the constraint, describe the chosen behavior, identify what remains uncertain, and show how the decision can be tested.</p>
+<p><a href="/playground/">Try the simulation</a>, or <a href="https://github.com/khushal075/presence_service">explore the presence-service repository</a> for the separate implementation.</p>
+<hr><p><a href="/blog/">← All architecture notes</a> · <a href="/playground/">Explore the playground →</a></p></article></main><footer><span class="mono">Khushal / Strategy, grounded in execution.</span><div><a href="/subscribe/">Subscribe</a> &nbsp; · &nbsp; <a class="contact" href="https://github.com/khushal075">GitHub</a></div></footer></body></html>

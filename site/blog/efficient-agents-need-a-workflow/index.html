@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Efficient agents need a workflow, not just a stronger model / Khushal</title><meta name="description" content="A practical architecture combining rules, small ML models, language-model routing, and bounded collaboration to improve business outcomes."><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#12695e"><link rel="canonical" href="https://khushal075.github.io/blog/efficient-agents-need-a-workflow/"><link rel="alternate" type="application/rss+xml" title="Khushal / Architecture Notes" href="/rss.xml"><meta property="og:title" content="Efficient agents need a workflow, not just a stronger model / Khushal"><meta property="og:description" content="A practical architecture combining rules, small ML models, language-model routing, and bounded collaboration to improve business outcomes."><meta property="og:type" content="website"><meta property="og:url" content="https://khushal075.github.io/blog/efficient-agents-need-a-workflow/"><link rel="stylesheet" href="/_astro/Layout.Chff5W8M.css"></head><body><nav><a class="brand" href="/" aria-label="Khushal home">k<span>.</span></a><div class="navlinks"><a href="/about/">About</a><a href="/blog/" aria-current="page">Blog</a><a href="/decisions/">Decisions</a><a href="/playground/">Playground</a><a href="/ai/">AI</a><a href="https://github.com/khushal075" target="_blank" rel="noopener">GitHub</a></div></nav><main><header class="bloghero articlehero"><a class="eyebrow mono" href="/blog/">← Architecture notes</a><h1>Efficient agents need a workflow, not just a stronger model</h1><p>A practical architecture combining rules, small ML models, language-model routing, and bounded collaboration to improve business outcomes.</p><div class="postmeta mono">Khushal · <time datetime="2026-10-30T00:00:00.000Z">30 October 2026</time> · 6 min read<br>Applied AI / Enterprise architecture / Agent workflows</div></header><article class="prose"><p>A support request arrives: identify the customer, understand the issue, retrieve the right policy, recommend an action, and possibly change a subscription.</p>
+<p>A powerful model could attempt the whole task. But should it?</p>
+<p>Some steps are database lookups. Others are classification. A few require judgment. One may need explicit human approval. Treating every step as a reasoning problem makes the system harder to price, test, and operate.</p>
+<p>The architecture goal is to complete the business task correctly, within its time, cost, and authority limits. Model intelligence is one resource in that design.</p>
+<p>This article proposes a workflow; it does not describe features already implemented in CrewOS or claim measured performance gains.</p>
+<h2 id="1-define-success-before-choosing-models">1. Define success before choosing models</h2>
+<p>For the support example, success might mean a correct recommendation, evidence from the applicable policy, no unauthorized account changes, and an acceptable response time.</p>
+<p>Measure the outcome rather than merely counting completed model calls. Useful metrics include accepted resolutions, escalation rate, correction rate, latency, and cost per correctly resolved request.</p>
+<p>Distinguish a fixed workflow from an agent that chooses its next actions. Use a predefined path when the task is predictable; add dynamic planning when the work genuinely needs it. Anthropic describes this distinction and recommends increasing complexity only when necessary. <a href="https://www.anthropic.com/research/building-effective-agents">Building effective agents</a></p>
+<h2 id="2-establish-a-trusted-execution-contract">2. Establish a trusted execution contract</h2>
+<p>Before any model runs, validate the input, authenticate the caller, and establish authorized tenant scope.</p>
+<p>Create a run record with a stable ID, objective, allowed tools, output requirements, deadline, and spending limits. Persist progress where recovery requires it.</p>
+<p>The application owns these boundaries. A model may propose actions, but it cannot grant itself permissions or redefine the tenant it serves. Treat retrieved documents and tool responses as evidence, not instructions that can override authorization.</p>
+<p><img src="/images/efficient-agent-workflow.svg" alt="A bounded hybrid AI workflow combining rules, ML routing, language models, collaboration, verification, and approval"></p>
+<h2 id="3-use-rules-and-small-ml-where-they-fit">3. Use rules and small ML where they fit</h2>
+<p>A language model is unnecessary for every decision.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Candidate mechanism</th>
+<th>Why consider it?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validate account ownership</td>
+<td>Authorization rules and database lookup</td>
+<td>The answer comes from trusted records</td>
+</tr>
+<tr>
+<td>Route a known support category</td>
+<td>TF-IDF with logistic regression or a linear classifier</td>
+<td>A measurable baseline for labeled text</td>
+</tr>
+<tr>
+<td>Estimate escalation risk from structured features</td>
+<td>Logistic regression or gradient-boosted trees</td>
+<td>Handles a defined prediction task</td>
+</tr>
+<tr>
+<td>Retrieve related policies</td>
+<td>Search or embeddings with enforced access filters</td>
+<td>Narrows the evidence supplied to the model</td>
+</tr>
+<tr>
+<td>Explain a policy in context</td>
+<td>A language model</td>
+<td>Requires language interpretation and synthesis</td>
+</tr>
+<tr>
+<td>Change a subscription</td>
+<td>Authorized application code</td>
+<td>Requires controlled side effects</td>
+</tr>
+</tbody>
+</table>
+<p>Small ML models are useful when the labels, inputs, and evaluation criteria are sufficiently stable. They still require training data, maintenance, and monitoring.</p>
+<p>A classifier score is not automatically a reliable probability. Check calibration on held-out data and examine performance for relevant customer and task groups. Scikit-learn documents calibration methods and their limitations. <a href="https://scikit-learn.org/stable/modules/calibration.html">Probability calibration</a></p>
+<p>If uncertainty is high, abstain and route to a more capable path or a person. Do not invent a universal confidence threshold.</p>
+<h2 id="4-route-language-work-by-difficulty-and-risk">4. Route language work by difficulty and risk</h2>
+<p>Start with a cheaper model for a bounded extraction or summarization task when evaluation shows it meets the requirement. Reserve stronger reasoning models for tasks that need them.</p>
+<p>Routing should consider task type, available evidence, observed failure patterns, latency, and permitted data destinations. Switching providers can change the data-handling boundary, not just the price.</p>
+<p>Escalate when the result fails a check, conflicts with evidence, or exceeds the simpler path’s demonstrated capability. A model saying it is confident is not sufficient evidence.</p>
+<p>Evaluate the routing system end to end. Money saved on initial calls can disappear through retries, reviews, and corrections.</p>
+<h2 id="5-make-collaboration-purposeful-and-bounded">5. Make collaboration purposeful and bounded</h2>
+<p>Multiple models can contribute different roles: one extracts facts, another investigates an independent question, and a stronger model synthesizes evidence. A separate reviewer may identify unsupported claims.</p>
+<p>Multiple roles do not require different model families, and different models do not guarantee independent errors. Shared training patterns or the same misleading source can lead them to agree incorrectly.</p>
+<p>Parallelize work that is genuinely independent. For a research task, one worker might inspect the technical evidence while another examines operating costs. Give each worker a narrow objective, scoped tools, evidence requirements, and a deadline.</p>
+<p>Return structured findings rather than entire conversation histories. The coordinator should track missing evidence, conflicts, and unfinished work before producing a conclusion.</p>
+<p>Anthropic’s multi-agent research report describes the benefits and additional coordination challenges of parallel research. Its results are specific to that system, not a general guarantee for every multi-agent design. <a href="https://www.anthropic.com/engineering/multi-agent-research-system">Multi-agent research system</a></p>
+<p>Avoid collaboration when the work is tightly sequential or cheap enough to solve reliably in one pass. Coordination has a cost.</p>
+<h2 id="6-verify-before-committing-an-action">6. Verify before committing an action</h2>
+<p>Validate output structure, required fields, identifiers, authorization, and business invariants with application code wherever possible.</p>
+<p>For a policy recommendation, check whether cited evidence exists and applies to the customer’s situation. An LLM reviewer can add a useful signal; agreement between models is not proof.</p>
+<p>Separate proposing a change from executing it. Require approval where the business process demands it, and bind that approval to the exact action and parameters. Revalidate authorization at execution time.</p>
+<p>Protect external writes with operation IDs and downstream deduplication where supported. A network timeout does not establish whether a change happened, so retries must account for ambiguous outcomes.</p>
+<h2 id="7-budget-the-whole-workflow">7. Budget the whole workflow</h2>
+<p>Limit total spending, elapsed time, tool calls, retries, and parallel workers. Reserve capacity for verification and delivery rather than allowing planning to consume the entire budget.</p>
+<p>When a limit is reached, return an explicit incomplete state, save recoverable progress, or escalate. Do not turn partial evidence into an apparently complete answer.</p>
+<p>Record the route selected, model versions, tool outcomes, latency, and cost. Avoid indiscriminately logging sensitive prompts or customer data.</p>
+<h2 id="8-improve-against-a-baseline">8. Improve against a baseline</h2>
+<p>Compare a simple single-model workflow with routed and collaborative alternatives on representative tasks. Include ambiguous requests, missing evidence, provider failures, and attempted cross-tenant access.</p>
+<p>Track quality alongside cost and latency. Review false confident routes and unnecessary escalations. Monitor changes in traffic and labels; retrain or recalibrate small models when evidence justifies it.</p>
+<p>The architecture decision is whether the additional machinery improves the business outcome enough to justify its complexity.</p>
+<p>An efficient agent system assigns each step to a mechanism it can justify: rules for known constraints, small ML for defined predictions, language models for interpretation, collaboration for separable work, and people for decisions that require human authority.</p>
+<hr><p><a href="/blog/">← All architecture notes</a> · <a href="/playground/">Explore the playground →</a></p></article></main><footer><span class="mono">Khushal / Strategy, grounded in execution.</span><div><a href="/subscribe/">Subscribe</a> &nbsp; · &nbsp; <a class="contact" href="https://github.com/khushal075">GitHub</a></div></footer></body></html>
