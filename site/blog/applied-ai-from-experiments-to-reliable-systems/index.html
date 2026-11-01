@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Applied AI: from experiments to reliable systems / Khushal</title><meta name="description" content="Where applied AI creates value, how to measure its quality, and a practical path to building proficiency through working projects."><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#12695e"><link rel="canonical" href="https://khushal075.github.io/blog/applied-ai-from-experiments-to-reliable-systems/"><link rel="alternate" type="application/rss+xml" title="Khushal / Architecture Notes" href="/rss.xml"><meta property="og:title" content="Applied AI: from experiments to reliable systems / Khushal"><meta property="og:description" content="Where applied AI creates value, how to measure its quality, and a practical path to building proficiency through working projects."><meta property="og:type" content="website"><meta property="og:url" content="https://khushal075.github.io/blog/applied-ai-from-experiments-to-reliable-systems/"><link rel="stylesheet" href="/_astro/Layout.Chff5W8M.css"></head><body><nav><a class="brand" href="/" aria-label="Khushal home">k<span>.</span></a><div class="navlinks"><a href="/about/">About</a><a href="/blog/" aria-current="page">Blog</a><a href="/decisions/">Decisions</a><a href="/playground/">Playground</a><a href="/ai/">AI</a><a href="https://github.com/khushal075" target="_blank" rel="noopener">GitHub</a></div></nav><main><header class="bloghero articlehero"><a class="eyebrow mono" href="/blog/">← Architecture notes</a><h1>Applied AI: from experiments to reliable systems</h1><p>Where applied AI creates value, how to measure its quality, and a practical path to building proficiency through working projects.</p><div class="postmeta mono">Khushal · <time datetime="2026-11-01T00:00:00.000Z">1 November 2026</time> · 8 min read<br>Applied AI / AI evaluation / Engineering practice</div></header><article class="prose"><p>A model can produce an impressive answer in seconds. Turning that answer into something a business can rely on is a different problem.</p>
+<p>The system needs relevant data, a definition of success, permission boundaries, a way to recognize failure, and someone responsible for what happens after deployment.</p>
+<p>That is the work of applied AI: selecting and combining techniques to solve a real problem under real constraints. It includes traditional machine learning, retrieval, language models, and the software that makes them usable.</p>
+<p>If you already build backend systems, you have a useful foundation. The next step is to learn how to work with predictions and uncertainty as carefully as you work with APIs and databases.</p>
+<h2 id="where-applied-ai-has-practical-scope">Where applied AI has practical scope</h2>
+<p>Start with a business activity rather than a model category.</p>
+<p>A support team might need better request routing. An operations team might need to identify unusual activity. A knowledge team might want answers backed by current documents. A platform team might need safe, observable model execution.</p>
+<p>These problems create several kinds of engineering responsibility:</p>
+<table>
+<thead>
+<tr>
+<th>Responsibility</th>
+<th>What the work involves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Problem framing</td>
+<td>Defining the decision, its users, and the consequence of an incorrect answer</td>
+</tr>
+<tr>
+<td>Data preparation</td>
+<td>Collecting examples, establishing labels, managing access, and maintaining quality</td>
+</tr>
+<tr>
+<td>Model application</td>
+<td>Selecting baselines, integrating models, and choosing when to abstain</td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>Building representative tests and measuring outcomes that matter</td>
+</tr>
+<tr>
+<td>Platform delivery</td>
+<td>Handling latency, cost, versioning, permissions, and failure recovery</td>
+</tr>
+<tr>
+<td>Operational improvement</td>
+<td>Investigating errors, reviewing feedback, and detecting changing conditions</td>
+</tr>
+</tbody>
+</table>
+<p>These responsibilities can be combined or distributed across a team. They describe useful capabilities, not a guarantee of a particular job or a shortcut to career advancement.</p>
+<p>The strongest opportunity is often where domain knowledge meets engineering discipline: understanding a workflow well enough to know what should be automated, what should be suggested, and what should remain a human decision.</p>
+<h2 id="learn-the-decision-then-choose-the-technique">Learn the decision, then choose the technique</h2>
+<p>Suppose the task is routing customer support messages.</p>
+<p>A keyword rule is a reasonable baseline. A TF-IDF representation with logistic regression might handle a labeled categorization task. A language model may help when interpretation depends on broader context. Retrieval may supply a policy the answer needs to cite.</p>
+<p>The correct choice depends on demonstrated quality, available data, response-time needs, and operating cost.</p>
+<p>Google’s engineering guidance emphasizes simple models, robust pipelines, and measurable objectives before adding complexity. <a href="https://developers.google.com/machine-learning/guides/rules-of-ml">Rules of Machine Learning</a></p>
+<p>Learning applied AI therefore includes learning when not to use a language model. A deterministic lookup should remain a lookup. Authorization should remain an application responsibility.</p>
+<h2 id="what-does-an-ai-score-actually-mean">What does an AI “score” actually mean?</h2>
+<p>A score answers a particular measurement question. It is not a general certificate that a system is intelligent, trustworthy, or ready to deploy.</p>
+<p>For a classifier, common measures include:</p>
+<ul>
+<li><strong>Precision:</strong> among cases predicted positive, how many were actually positive?</li>
+<li><strong>Recall:</strong> among actual positive cases, how many did the system find?</li>
+<li><strong>F1:</strong> the harmonic mean of precision and recall; useful for some comparisons, but not a representation of every business cost.</li>
+</ul>
+<p>Choose the positive class explicitly. For support escalation, “positive” could mean “requires a person.” Missing a serious issue and unnecessarily escalating a routine one have different consequences.</p>
+<p>Accuracy can hide poor performance on rare but important cases. Also inspect a confusion matrix and results by task type, language, and other relevant groups. Scikit-learn documents these metrics and their appropriate interpretation. <a href="https://scikit-learn.org/stable/modules/model_evaluation.html">Metrics and scoring</a></p>
+<p>For a generated answer, a different scorecard is needed.</p>
+<h2 id="evaluate-the-whole-outcome">Evaluate the whole outcome</h2>
+<p>A support assistant can produce fluent text while retrieving the wrong policy or proposing an unauthorized action. Evaluate those dimensions separately.</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Practical question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task correctness</td>
+<td>Did the system answer the question or complete the requested work correctly?</td>
+</tr>
+<tr>
+<td>Evidence</td>
+<td>Does the answer rely on relevant, applicable sources?</td>
+</tr>
+<tr>
+<td>Authorization</td>
+<td>Did every read and action remain within the user’s permissions?</td>
+</tr>
+<tr>
+<td>Abstention</td>
+<td>Did it escalate or acknowledge insufficient evidence when appropriate?</td>
+</tr>
+<tr>
+<td>Service quality</td>
+<td>What are the latency distribution, failure rate, and recovery behavior?</td>
+</tr>
+<tr>
+<td>Economics</td>
+<td>What does a correctly completed task cost after retries and review?</td>
+</tr>
+</tbody>
+</table>
+<p>Define a rubric with concrete examples of passing, failing, and ambiguous outcomes. Use deterministic checks where the answer can be verified directly. Use human review for judgments that require domain interpretation.</p>
+<p>Model-based grading can assist, but a grader can be inconsistent or share the same blind spots as the system being assessed. Compare its decisions with qualified human judgments before relying on it.</p>
+<p>Avoid averaging every dimension into one attractive number. Strong writing cannot compensate for cross-tenant data exposure. Some requirements are release gates, not weighted preferences.</p>
+<p>A useful economic measure is:</p>
+<pre class="astro-code github-light" style="background-color:#fff;color:#24292e; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Cost per correctly completed task =</span></span>
+<span class="line"><span>    total processing and review cost</span></span>
+<span class="line"><span>    / number of tasks verified as correctly completed</span></span></code></pre>
+<p>State what is included in “cost” and how correctness was assessed. Faster generation is not automatically cheaper delivery if it increases correction work.</p>
+<h2 id="build-an-evaluation-set-before-optimizing">Build an evaluation set before optimizing</h2>
+<p>Collect examples that resemble the work the system will encounter: routine requests, ambiguous wording, missing information, unsupported questions, and attempts to exceed permission boundaries.</p>
+<p>Separate training, development, and final evaluation data. Fit learned preprocessing on training data rather than letting evaluation examples influence it. Repeatedly tuning against a final test set turns it into another development set. <a href="https://scikit-learn.org/stable/common_pitfalls.html">Common ML pitfalls</a></p>
+<p>Choose splits that reflect deployment. Closely related messages from one incident should not appear on both sides of a split if that would make the result unrealistically easy. Time-based or grouped evaluation may be more appropriate than a random split.</p>
+<p>Report dataset size, task mix, limitations, and uncertainty. A high score on a handful of convenient examples is weak evidence about unfamiliar cases.</p>
+<h2 id="a-practical-path-to-proficiency">A practical path to proficiency</h2>
+<p>Rather than collecting unrelated demos, build one project through progressively harder stages.</p>
+<h3 id="stage-1-establish-the-foundations">Stage 1: Establish the foundations</h3>
+<p>Learn Python data handling, basic probability, classification and regression, train/test separation, and precision-recall tradeoffs. Learn enough linear algebra to understand vectors, similarity, and embeddings.</p>
+<p>For language-model applications, understand tokens, context limits, structured outputs, retrieval, and the difference between model knowledge and supplied evidence.</p>
+<p><strong>Deliverable:</strong> a small, labeled task with a simple baseline and a written explanation of its errors.</p>
+<h3 id="stage-2-compare-alternatives">Stage 2: Compare alternatives</h3>
+<p>For the same task, compare a rule-based approach, a small ML model, and a language-model approach where appropriate.</p>
+<p>Keep the evaluation conditions comparable. Record quality, latency, operational dependencies, and cost assumptions. Inspect which cases each approach gets wrong.</p>
+<p><strong>Deliverable:</strong> a reproducible comparison and a decision explaining which approach you would deploy—and why.</p>
+<h3 id="stage-3-add-useful-context">Stage 3: Add useful context</h3>
+<p>Build document ingestion and retrieval if the task needs changing or organization-specific information. Keep document versions, access scope, and source references explicit.</p>
+<p>Test retrieval separately from answer generation. An excellent generator cannot compensate reliably for missing evidence.</p>
+<p><strong>Deliverable:</strong> an evidence-backed assistant that can acknowledge when the required information is unavailable.</p>
+<h3 id="stage-4-engineer-the-service">Stage 4: Engineer the service</h3>
+<p>Add input validation, tenant-aware authorization, model timeouts, bounded retries, observability, and usage limits. Version prompts and model configuration alongside the application.</p>
+<p>Test outages, malformed responses, stale documents, and ambiguous external-write outcomes. Define a rollback path and who reviews failures.</p>
+<p><strong>Deliverable:</strong> a service someone else can operate using your documentation, with known limits made visible.</p>
+<h3 id="stage-5-introduce-autonomy-only-when-justified">Stage 5: Introduce autonomy only when justified</h3>
+<p>If a fixed workflow already solves the task, keep it. Add tool selection or dynamic planning when evaluation demonstrates a need for flexibility.</p>
+<p>A model can propose an action; application code must enforce authority. Use bounded execution and explicit approval where the workflow requires it. Anthropic distinguishes predefined workflows from agents that choose their own process, and discusses the tradeoff in complexity. <a href="https://www.anthropic.com/research/building-effective-agents">Building effective agents</a></p>
+<p><strong>Deliverable:</strong> an agent whose additional flexibility improves a measured outcome enough to justify its cost and failure modes.</p>
+<p>These are progression stages, not a promise that mastery takes a fixed number of weeks.</p>
+<h2 id="demonstrate-capability-with-evidence">Demonstrate capability with evidence</h2>
+<p>A convincing project portfolio should answer six questions:</p>
+<ol>
+<li>What problem was worth solving?</li>
+<li>What simpler approach did you compare against?</li>
+<li>What data and evaluation method support the result?</li>
+<li>Where does the system fail, and what happens then?</li>
+<li>What does it cost to operate at the workload you tested?</li>
+<li>Which decisions would change under different business constraints?</li>
+</ol>
+<p>Include the code, a reproducible evaluation, an architecture explanation, and a short error analysis. Distinguish local experiments from production deployment and simulated measurements from observed results.</p>
+<p>A certificate can show completion of a course. A working system with inspectable evidence shows how you make decisions.</p>
+<h2 id="a-useful-definition-of-mastery">A useful definition of mastery</h2>
+<p>Applied AI proficiency is the ability to select an appropriate technique, explain its limits, measure its behavior, and improve the complete system after it meets real users.</p>
+<p>It requires continued learning because models, data, and operating conditions change. The durable skill is making responsible decisions under uncertainty—and leaving enough evidence for other people to assess those decisions.</p>
+<hr><p><a href="/blog/">← All architecture notes</a> · <a href="/playground/">Explore the playground →</a></p></article></main><footer><span class="mono">Khushal / Strategy, grounded in execution.</span><div><a href="/subscribe/">Subscribe</a> &nbsp; · &nbsp; <a class="contact" href="https://github.com/khushal075">GitHub</a></div></footer></body></html>
